@@ -809,6 +809,7 @@
     }
 
     function onScanSuccess(decodedText, decodedResult) {
+      pararCamera();
       mostrarAlerta(`Código detectado: ${decodedText}`, 'sucesso');
       document.getElementById('manualCode').value = decodedText;
       buscarProduto(decodedText);
