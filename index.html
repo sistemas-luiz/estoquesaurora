@@ -24,7 +24,13 @@
         <i class="fa-solid fa-boxes-packing text-2xl text-indigo-200"></i>
         <div>
           <h1 class="text-xl font-bold tracking-wide">Estoque & Empréstimos</h1>
-          <span class="text-[10px] bg-indigo-800 text-indigo-200 px-2 py-0.5 rounded-full uppercase font-semibold tracking-wider">GitHub Edition</span>
+          <div class="flex items-center gap-2 mt-0.5">
+            <span class="text-[10px] bg-indigo-800 text-indigo-200 px-2 py-0.5 rounded-full uppercase font-semibold tracking-wider">GitHub Edition</span>
+            <!-- Banners de Status da Conexão -->
+            <span id="badgeStatusConexao" onclick="abrirModalConfiguracoes()" class="cursor-pointer text-[10px] bg-amber-500 text-white px-2 py-0.5 rounded-full font-bold flex items-center gap-1 hover:bg-amber-600 transition">
+              <i class="fa-solid fa-triangle-exclamation"></i> Conectar Planilha
+            </span>
+          </div>
         </div>
       </div>
       <!-- Tab Navigation -->
@@ -41,7 +47,7 @@
         <button onclick="switchTab('devolucoes')" id="tab-devolucoes" class="px-3.5 py-2 rounded-lg text-indigo-100 hover:bg-indigo-600/50 flex items-center gap-2 transition">
           <i class="fa-solid fa-rotate-left"></i> Devoluções
         </button>
-        <button onclick="abrirModalConfiguracoes()" class="px-2.5 py-2 rounded-lg text-indigo-100 hover:bg-indigo-600/50 flex items-center gap-1 transition" title="Configurações de Dados">
+        <button onclick="abrirModalConfiguracoes()" class="px-2.5 py-2 rounded-lg text-indigo-100 hover:bg-indigo-600/50 flex items-center gap-1 transition" title="Configurações e Conexão da Planilha">
           <i class="fa-solid fa-gear"></i>
         </button>
       </nav>
@@ -110,7 +116,7 @@
             <!-- TELA DE CARREGAMENTO DE BUSCA DO PRODUTO -->
             <div id="productCardLoading" class="hidden text-center py-12 text-slate-500 space-y-3">
               <i class="fa-solid fa-circle-notch fa-spin text-4xl text-indigo-600"></i>
-              <p class="font-semibold text-sm text-slate-700">Consultando estoque no sistema...</p>
+              <p class="font-semibold text-sm text-slate-700">Consultando estoque na planilha...</p>
               <p class="text-xs text-slate-400">Por favor, aguarde alguns instantes.</p>
             </div>
 
@@ -605,33 +611,41 @@
     </div>
   </div>
 
-  <!-- MODAL DE CONFIGURAÇÕES / BANCO DE DADOS -->
+  <!-- MODAL DE CONFIGURAÇÕES E CONEXÃO COM A PLANILHA -->
   <div id="modalConfiguracoes" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
-    <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden">
       <div class="bg-indigo-600 px-5 py-4 text-white flex justify-between items-center">
         <h3 class="font-bold flex items-center gap-2">
-          <i class="fa-solid fa-gear"></i> Configurações do GitHub
+          <i class="fa-solid fa-link"></i> Conectar com o Google Sheets
         </h3>
         <button onclick="fecharModalConfiguracoes()" class="text-white hover:text-indigo-200 font-bold text-xl">&times;</button>
       </div>
-      <div class="p-5 space-y-4 text-sm text-slate-700">
-        <div class="bg-indigo-50 p-3 rounded-xl border border-indigo-100 text-xs text-indigo-800 leading-relaxed">
-          <p><strong>Status do Banco:</strong> Os dados estão sendo salvos localmente no seu navegador via <code class="bg-indigo-100 px-1 rounded">localStorage</code>.</p>
+      <div class="p-6 space-y-4 text-sm text-slate-700">
+        
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">URL da Web App Google Apps Script *</label>
+          <input type="url" id="cfg-apiUrl" placeholder="https://script.google.com/macros/s/.../exec" 
+            class="w-full px-3 py-2 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-indigo-500 font-mono">
+          <p class="text-[11px] text-slate-500 mt-1">Cole aqui a URL gerada na publicação da sua Web App do Google Apps Script.</p>
         </div>
 
-        <div>
-          <label class="block text-xs font-bold text-slate-600 mb-1">URL da Web App Google Apps Script (Opcional)</label>
-          <input type="url" id="cfg-apiUrl" placeholder="https://script.google.com/macros/s/.../exec" 
-            class="w-full px-3 py-2 border rounded-lg text-xs focus:ring-2 focus:ring-indigo-500">
-          <p class="text-[11px] text-slate-400 mt-1">Insira a URL de execução caso queira sincronizar com a planilha do Google Sheets.</p>
+        <div class="bg-indigo-50 p-4 rounded-xl border border-indigo-100 space-y-2 text-xs text-indigo-900">
+          <p class="font-bold flex items-center gap-1.5"><i class="fa-solid fa-circle-info text-indigo-600"></i> Como obter a URL da sua Planilha (30 segundos):</p>
+          <ol class="list-decimal pl-4 space-y-1 text-slate-600">
+            <li>Abra sua planilha do Google e vá em <strong>Extensões > Apps Script</strong>.</li>
+            <li>Coloque o código do <code>Código.gs</code> e clique em <strong>Implantar > Nova implantação</strong>.</li>
+            <li>Selecione o tipo <strong>App da Web</strong>.</li>
+            <li>Defina <strong>"Quem pode acessar"</strong> como <code>Qualquer pessoa</code>.</li>
+            <li>Clique em <strong>Implantar</strong>, autorize o acesso e copie o <strong>URL do App da Web</strong>.</li>
+          </ol>
         </div>
 
         <div class="pt-3 border-t border-slate-100 flex justify-between gap-2">
-          <button onclick="restaurarDadosExemplo()" class="text-xs bg-slate-100 text-slate-600 px-3 py-2 rounded-lg hover:bg-slate-200 font-medium">
-            Carregar Dados Exemplo
+          <button onclick="testarConexaoApi()" type="button" class="text-xs bg-slate-100 text-slate-700 px-3 py-2 rounded-xl hover:bg-slate-200 font-semibold transition flex items-center gap-1">
+            <i class="fa-solid fa-plug"></i> Testar Conexão
           </button>
-          <button onclick="salvarConfiguracoes()" class="text-xs bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 font-bold">
-            Salvar
+          <button onclick="salvarConfiguracoes()" type="button" class="text-xs bg-indigo-600 text-white px-5 py-2 rounded-xl hover:bg-indigo-700 font-bold shadow transition flex items-center gap-1">
+            <i class="fa-solid fa-save"></i> Salvar e Conectar
           </button>
         </div>
       </div>
@@ -662,7 +676,7 @@
     </div>
   </div>
 
-  <!-- JAVASCRIPT APP LOGIC (GITHUB STANDALONE ENGINE) -->
+  <!-- JAVASCRIPT APP LOGIC (GITHUB TO GOOGLE SHEETS API ENGINE) -->
   <script>
     let html5QrcodeScanner = null;
     let cameraAtiva = false;
@@ -671,99 +685,71 @@
     let todosProdutosInventario = [];
     let fotoBase64OuUrlAtual = "";
 
-    // LOCAL STORAGE DATABASE INITIALIZATION
-    const DB_STOCK_KEY = 'github_stock_products_v1';
-    const DB_LOANS_KEY = 'github_stock_loans_v1';
     const DB_API_KEY = 'github_stock_api_url_v1';
 
     window.onload = function() {
       // Data padrão de hoje
       document.getElementById('cad-dataEntrada').value = new Date().toISOString().split('T')[0];
       
-      // Carregar URL da API salva se houver
+      // Carregar URL da API salva
       const savedApiUrl = localStorage.getItem(DB_API_KEY) || '';
       document.getElementById('cfg-apiUrl').value = savedApiUrl;
 
-      // Inicializar dados de exemplo se o estoque estiver vazio
-      inicializarBancoLocalSeVazio();
+      atualizarBadgeStatusConexao();
+
+      if (!savedApiUrl) {
+        setTimeout(() => {
+          mostrarAlerta("Configure a URL do Google Apps Script para sincronizar com sua planilha!", "alerta");
+        }, 1000);
+      }
     };
 
-    function getLocalStock() {
-      return JSON.parse(localStorage.getItem(DB_STOCK_KEY) || '[]');
+    function getApiUrl() {
+      return localStorage.getItem(DB_API_KEY) || '';
     }
 
-    function saveLocalStock(data) {
-      localStorage.setItem(DB_STOCK_KEY, JSON.stringify(data));
-    }
+    function atualizarBadgeStatusConexao() {
+      const badge = document.getElementById('badgeStatusConexao');
+      const url = getApiUrl();
 
-    function getLocalLoans() {
-      return JSON.parse(localStorage.getItem(DB_LOANS_KEY) || '[]');
-    }
-
-    function saveLocalLoans(data) {
-      localStorage.setItem(DB_LOANS_KEY, JSON.stringify(data));
-    }
-
-    function inicializarBancoLocalSeVazio() {
-      const stock = getLocalStock();
-      if (stock.length === 0) {
-        restaurarDadosExemplo();
+      if (url && url.startsWith('https://script.google.com/')) {
+        badge.className = "cursor-pointer text-[10px] bg-emerald-600 text-white px-2.5 py-0.5 rounded-full font-bold flex items-center gap-1 hover:bg-emerald-700 transition";
+        badge.innerHTML = '<i class="fa-solid fa-circle-check"></i> Planilha Conectada';
+      } else {
+        badge.className = "cursor-pointer text-[10px] bg-amber-500 text-white px-2.5 py-0.5 rounded-full font-bold flex items-center gap-1 hover:bg-amber-600 transition";
+        badge.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> Conectar Planilha';
       }
     }
 
-    function restaurarDadosExemplo() {
-      const sampleStock = [
-        {
-          codigo: "789123456789",
-          produto: "Furadeira Impacto 750W",
-          caracteristicas: "Marca Bosch 110V Mandril 1/2",
-          categoria: "Ferramentas",
-          unidade: "Unid",
-          qtdTotalUnitario: 5,
-          itensPorEmbalagem: 1,
-          precoUnit: 350.00,
-          dataEntrada: "2026-01-10",
-          tipoEntrada: "Compra",
-          localizacao: "Armário A - Prateleira 2",
-          ultimaAtualizacao: new Date().toLocaleDateString('pt-BR'),
-          qtdEmprestada: 1,
-          foto: "https://images.unsplash.com/photo-1504148455328-c376907d081c?w=400"
-        },
-        {
-          codigo: "LOTE-LIMPEZA-01",
-          produto: "Detergente Multiuso 5L",
-          caracteristicas: "Galão concentrado para limpeza de áreas comuns",
-          categoria: "Limpeza",
-          unidade: "Litro",
-          qtdTotalUnitario: 20,
-          itensPorEmbalagem: 1,
-          precoUnit: 25.50,
-          dataEntrada: "2026-02-01",
-          tipoEntrada: "Doação",
-          localizacao: "Depósito Principal",
-          ultimaAtualizacao: new Date().toLocaleDateString('pt-BR'),
-          qtdEmprestada: 0,
-          foto: ""
-        }
-      ];
+    /**
+     * Função universal de comunicação HTTP com o Google Apps Script
+     */
+    async function chamarApiSheets(action, payload = {}, method = 'GET') {
+      const apiUrl = getApiUrl();
+      if (!apiUrl) {
+        abrirModalConfiguracoes();
+        throw new Error("URL da API do Google Apps Script não configurada. Insira o link da sua Web App!");
+      }
 
-      const sampleLoans = [
-        {
-          idEmprestimo: "EMP-849201",
-          dataHora: new Date().toLocaleString('pt-BR'),
-          codigo: "789123456789",
-          produto: "Furadeira Impacto 750W",
-          nomeMorador: "Carlos Eduardo",
-          casaUnidade: "Casa 24",
-          qtdEmprestada: 1,
-          observacoes: "Devolução prevista para amanhã",
-          status: "Ativo"
+      try {
+        if (method === 'GET') {
+          const params = new URLSearchParams({ action, ...payload });
+          const response = await fetch(`${apiUrl}?${params.toString()}`);
+          if (!response.ok) throw new Error(`HTTP ${response.status}`);
+          return await response.json();
+        } else {
+          const response = await fetch(apiUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify({ action, ...payload })
+          });
+          if (!response.ok) throw new Error(`HTTP ${response.status}`);
+          return await response.json();
         }
-      ];
-
-      saveLocalStock(sampleStock);
-      saveLocalLoans(sampleLoans);
-      mostrarAlerta("Dados de exemplo carregados com sucesso!", "sucesso");
+      } catch (err) {
+        console.error("Erro na comunicação com a planilha:", err);
+        throw new Error("Erro de conexão com o Google Sheets: " + err.message);
+      }
     }
 
     // Alternar Abas da Interface
@@ -880,26 +866,15 @@
     function buscarProduto(codigo) {
       setSearchLoading(true);
 
-      setTimeout(() => {
-        const stock = getLocalStock();
-        const cleanCode = String(codigo).trim().toLowerCase();
-        const item = stock.find(p => String(p.codigo).trim().toLowerCase() === cleanCode);
-
-        setSearchLoading(false);
-
-        if (item) {
-          const totalUnit = Number(item.qtdTotalUnitario) || 0;
-          const emp = Number(item.qtdEmprestada) || 0;
-          const disp = Math.max(0, totalUnit - emp);
-
-          exibirProduto({
-            ...item,
-            qtdDisponivel: disp
-          });
-        } else {
-          exibirProduto(null);
-        }
-      }, 300);
+      chamarApiSheets('buscarProduto', { codigo: codigo }, 'GET')
+        .then(res => {
+          setSearchLoading(false);
+          exibirProduto(res);
+        })
+        .catch(err => {
+          setSearchLoading(false);
+          mostrarAlerta(err.message, 'erro');
+        });
     }
 
     function exibirProduto(produto) {
@@ -1059,23 +1034,19 @@
     // LÓGICA DO INVENTÁRIO
     function carregarInventario() {
       const tb = document.getElementById('tabelaInventario');
-      tb.innerHTML = '<tr><td colspan="10" class="text-center py-10 text-slate-400"><i class="fa-solid fa-circle-notch fa-spin text-2xl text-indigo-600 mb-2 block"></i> Carregando lista de produtos...</td></tr>';
+      tb.innerHTML = '<tr><td colspan="10" class="text-center py-10 text-slate-400"><i class="fa-solid fa-circle-notch fa-spin text-2xl text-indigo-600 mb-2 block"></i> Carregando inventário da planilha...</td></tr>';
 
-      setTimeout(() => {
-        const stock = getLocalStock();
-        todosProdutosInventario = stock.map(p => {
-          const totalUnit = Number(p.qtdTotalUnitario) || 0;
-          const emp = Number(p.qtdEmprestada) || 0;
-          return {
-            ...p,
-            qtdDisponivel: Math.max(0, totalUnit - emp)
-          };
+      chamarApiSheets('listarProdutos', {}, 'GET')
+        .then(lista => {
+          todosProdutosInventario = lista || [];
+          preencherFiltroCategorias(todosProdutosInventario);
+          atualizarKPIsInventario(todosProdutosInventario);
+          filtrarEExibirInventario();
+        })
+        .catch(err => {
+          mostrarAlerta(err.message, 'erro');
+          tb.innerHTML = '<tr><td colspan="10" class="text-center py-8 text-red-500">Erro ao carregar inventário da planilha!</td></tr>';
         });
-
-        preencherFiltroCategorias(todosProdutosInventario);
-        atualizarKPIsInventario(todosProdutosInventario);
-        filtrarEExibirInventario();
-      }, 200);
     }
 
     function preencherFiltroCategorias(produtos) {
@@ -1204,11 +1175,12 @@
     }
 
     function editarProdutoDoInventario(codigo) {
-      const stock = getLocalStock();
-      const p = stock.find(item => item.codigo === codigo);
+      const p = todosProdutosInventario.find(item => item.codigo === codigo);
       if (p) {
         produtoAtual = p;
         carregarParaEdicao();
+      } else {
+        buscarProduto(codigo);
       }
     }
 
@@ -1242,53 +1214,27 @@
       btn.disabled = true;
       btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Processando...';
 
-      const qtdDesejada = Number(document.getElementById('emp-qtd').value);
-      const nomeMorador = document.getElementById('emp-nomeMorador').value.trim();
-      const casaUnidade = document.getElementById('emp-casaUnidade').value.trim();
-      const observacoes = document.getElementById('emp-observacoes').value.trim();
+      const dadosEmprestimo = {
+        codigo: produtoAtual.codigo,
+        nomeMorador: document.getElementById('emp-nomeMorador').value.trim(),
+        casaUnidade: document.getElementById('emp-casaUnidade').value.trim(),
+        qtdEmprestada: document.getElementById('emp-qtd').value,
+        observacoes: document.getElementById('emp-observacoes').value.trim()
+      };
 
-      setTimeout(() => {
-        const stock = getLocalStock();
-        const loans = getLocalLoans();
-        const idx = stock.findIndex(p => p.codigo === produtoAtual.codigo);
-
-        if (idx !== -1) {
-          const item = stock[idx];
-          const disp = Math.max(0, (Number(item.qtdTotalUnitario) || 0) - (Number(item.qtdEmprestada) || 0));
-
-          if (qtdDesejada > disp) {
-            btn.disabled = false;
-            btn.innerHTML = '<i class="fa-solid fa-check"></i> Confirmar Empréstimo';
-            mostrarAlerta(`Quantidade indisponível! Estoque livre: ${disp}`, 'erro');
-            return;
-          }
-
-          item.qtdEmprestada = (Number(item.qtdEmprestada) || 0) + qtdDesejada;
-          item.ultimaAtualizacao = new Date().toLocaleDateString('pt-BR');
-          stock[idx] = item;
-          saveLocalStock(stock);
-
-          const idEmprestimo = 'EMP-' + Math.floor(100000 + Math.random() * 900000);
-          loans.push({
-            idEmprestimo: idEmprestimo,
-            dataHora: new Date().toLocaleString('pt-BR'),
-            codigo: item.codigo,
-            produto: item.produto,
-            nomeMorador: nomeMorador,
-            casaUnidade: casaUnidade,
-            qtdEmprestada: qtdDesejada,
-            observacoes: observacoes,
-            status: "Ativo"
-          });
-          saveLocalLoans(loans);
-
+      chamarApiSheets('registrarEmprestimo', { dadosEmprestimo: dadosEmprestimo }, 'POST')
+        .then(res => {
           btn.disabled = false;
           btn.innerHTML = '<i class="fa-solid fa-check"></i> Confirmar Empréstimo';
           fecharModalEmprestimo();
-          mostrarAlerta(`Empréstimo (${idEmprestimo}) registrado para ${nomeMorador}!`, 'sucesso');
-          buscarProduto(item.codigo);
-        }
-      }, 300);
+          mostrarAlerta(res.mensagem, 'sucesso');
+          buscarProduto(produtoAtual.codigo);
+        })
+        .catch(err => {
+          btn.disabled = false;
+          btn.innerHTML = '<i class="fa-solid fa-check"></i> Confirmar Empréstimo';
+          mostrarAlerta(err.message, 'erro');
+        });
     }
 
     // Modal de Doação
@@ -1321,54 +1267,27 @@
       btn.disabled = true;
       btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Processando...';
 
-      const qtdDesejada = Number(document.getElementById('doa-qtd').value);
-      const nomeMorador = document.getElementById('doa-nomeMorador').value.trim();
-      const casaUnidade = document.getElementById('doa-casaUnidade').value.trim();
-      const observacoes = document.getElementById('doa-observacoes').value.trim();
+      const dadosDoacao = {
+        codigo: produtoAtual.codigo,
+        nomeMorador: document.getElementById('doa-nomeMorador').value.trim(),
+        casaUnidade: document.getElementById('doa-casaUnidade').value.trim(),
+        qtdDoada: document.getElementById('doa-qtd').value,
+        observacoes: document.getElementById('doa-observacoes').value.trim()
+      };
 
-      setTimeout(() => {
-        const stock = getLocalStock();
-        const loans = getLocalLoans();
-        const idx = stock.findIndex(p => p.codigo === produtoAtual.codigo);
-
-        if (idx !== -1) {
-          const item = stock[idx];
-          const disp = Math.max(0, (Number(item.qtdTotalUnitario) || 0) - (Number(item.qtdEmprestada) || 0));
-
-          if (qtdDesejada > disp) {
-            btn.disabled = false;
-            btn.innerHTML = '<i class="fa-solid fa-check"></i> Confirmar Doação';
-            mostrarAlerta(`Quantidade indisponível! Estoque livre: ${disp}`, 'erro');
-            return;
-          }
-
-          // Baixa definitiva do total
-          item.qtdTotalUnitario = Math.max(0, (Number(item.qtdTotalUnitario) || 0) - qtdDesejada);
-          item.ultimaAtualizacao = new Date().toLocaleDateString('pt-BR');
-          stock[idx] = item;
-          saveLocalStock(stock);
-
-          const idDoacao = 'DOA-' + Math.floor(100000 + Math.random() * 900000);
-          loans.push({
-            idEmprestimo: idDoacao,
-            dataHora: new Date().toLocaleString('pt-BR'),
-            codigo: item.codigo,
-            produto: item.produto,
-            nomeMorador: nomeMorador,
-            casaUnidade: casaUnidade,
-            qtdEmprestada: qtdDesejada,
-            observacoes: observacoes,
-            status: "Doação"
-          });
-          saveLocalLoans(loans);
-
+      chamarApiSheets('registrarDoacao', { dadosDoacao: dadosDoacao }, 'POST')
+        .then(res => {
           btn.disabled = false;
           btn.innerHTML = '<i class="fa-solid fa-check"></i> Confirmar Doação';
           fecharModalDoacao();
-          mostrarAlerta(`Doação (${idDoacao}) registrada com sucesso para ${nomeMorador}!`, 'sucesso');
-          buscarProduto(item.codigo);
-        }
-      }, 300);
+          mostrarAlerta(res.mensagem, 'sucesso');
+          buscarProduto(produtoAtual.codigo);
+        })
+        .catch(err => {
+          btn.disabled = false;
+          btn.innerHTML = '<i class="fa-solid fa-check"></i> Confirmar Doação';
+          mostrarAlerta(err.message, 'erro');
+        });
     }
 
     // Salvar/Cadastrar Produto
@@ -1377,7 +1296,7 @@
 
       const btn = document.getElementById('btnSalvarProd');
       btn.disabled = true;
-      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Salvando...';
+      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Salvando na planilha...';
 
       const produtoData = {
         codigo: document.getElementById('cad-codigo').value.trim(),
@@ -1385,51 +1304,37 @@
         caracteristicas: document.getElementById('cad-caracteristicas').value.trim(),
         categoria: document.getElementById('cad-categoria').value.trim(),
         unidade: document.getElementById('cad-unidade').value,
-        qtdTotalUnitario: Number(document.getElementById('cad-qtdTotalUnitario').value) || 0,
-        itensPorEmbalagem: Number(document.getElementById('cad-itensPorEmbalagem').value) || 1,
-        precoUnit: Number(document.getElementById('cad-precoUnit').value) || 0,
+        qtdTotalUnitario: document.getElementById('cad-qtdTotalUnitario').value,
+        itensPorEmbalagem: document.getElementById('cad-itensPorEmbalagem').value || 1,
+        precoUnit: document.getElementById('cad-precoUnit').value,
         dataEntrada: document.getElementById('cad-dataEntrada').value,
         tipoEntrada: document.getElementById('cad-tipoEntrada').value.trim(),
         localizacao: document.getElementById('cad-localizacao').value.trim(),
-        foto: fotoBase64OuUrlAtual
+        foto: fotoBase64OuUrlAtual,
+        permitirSobrescrever: modoEdicaoAtivo || forcarSobrescrever
       };
 
-      setTimeout(() => {
-        const stock = getLocalStock();
-        const cleanCode = produtoData.codigo.toLowerCase();
-        const idx = stock.findIndex(p => p.codigo.toLowerCase() === cleanCode);
+      chamarApiSheets('cadastrarOuAtualizarProduto', { produtoData: produtoData }, 'POST')
+        .then(res => {
+          btn.disabled = false;
+          btn.innerHTML = '<i class="fa-solid fa-save"></i> Salvar Produto';
 
-        btn.disabled = false;
-        btn.innerHTML = '<i class="fa-solid fa-save"></i> Salvar Produto';
-
-        if (idx !== -1 && !modoEdicaoAtivo && !forcarSobrescrever) {
-          exibirModalCodigoExistente(produtoData.codigo, stock[idx].produto);
-          return;
-        }
-
-        if (idx !== -1) {
-          const emp = stock[idx].qtdEmprestada || 0;
-          stock[idx] = {
-            ...produtoData,
-            qtdEmprestada: emp,
-            ultimaAtualizacao: new Date().toLocaleDateString('pt-BR')
-          };
-        } else {
-          stock.push({
-            ...produtoData,
-            qtdEmprestada: 0,
-            ultimaAtualizacao: new Date().toLocaleDateString('pt-BR')
-          });
-        }
-
-        saveLocalStock(stock);
-        fecharModalCodigoExistente();
-        mostrarAlerta('Produto salvo com sucesso no estoque!', 'sucesso');
-        limparFormCadastro();
-        switchTab('scanner');
-        document.getElementById('manualCode').value = produtoData.codigo;
-        buscarProduto(produtoData.codigo);
-      }, 300);
+          if (res.status === 'codigo_existente') {
+            exibirModalCodigoExistente(res.codigo, res.produtoNome);
+          } else {
+            fecharModalCodigoExistente();
+            mostrarAlerta(res.mensagem, 'sucesso');
+            limparFormCadastro();
+            switchTab('scanner');
+            document.getElementById('manualCode').value = produtoData.codigo;
+            buscarProduto(produtoData.codigo);
+          }
+        })
+        .catch(err => {
+          btn.disabled = false;
+          btn.innerHTML = '<i class="fa-solid fa-save"></i> Salvar Produto';
+          mostrarAlerta(err.message, 'erro');
+        });
     }
 
     function exibirModalCodigoExistente(codigo, produtoNome) {
@@ -1519,20 +1424,36 @@
     function salvarConfiguracoes() {
       const url = document.getElementById('cfg-apiUrl').value.trim();
       localStorage.setItem(DB_API_KEY, url);
-      mostrarAlerta("Configurações salvas!", "sucesso");
+      atualizarBadgeStatusConexao();
+      mostrarAlerta("URL da planilha configurada com sucesso!", "sucesso");
       fecharModalConfiguracoes();
+    }
+
+    function testarConexaoApi() {
+      const url = document.getElementById('cfg-apiUrl').value.trim();
+      if (!url) {
+        mostrarAlerta("Digite a URL do Web App antes de testar.", "alerta");
+        return;
+      }
+
+      fetch(`${url}?action=listarProdutos`)
+        .then(r => r.json())
+        .then(res => {
+          mostrarAlerta("✅ Conexão estabelecida com sucesso com a planilha!", "sucesso");
+        })
+        .catch(err => {
+          mostrarAlerta("❌ Erro ao conectar com o Web App. Verifique a permissão ('Qualquer pessoa').", "erro");
+        });
     }
 
     // Carregar Lista de Devoluções Ativas
     function carregarDevolucoes() {
       const tb = document.getElementById('tabelaDevolucoes');
-      tb.innerHTML = '<tr><td colspan="6" class="text-center py-6 text-slate-400"><i class="fa-solid fa-spinner fa-spin me-2"></i> Carregando...</td></tr>';
+      tb.innerHTML = '<tr><td colspan="6" class="text-center py-6 text-slate-400"><i class="fa-solid fa-spinner fa-spin me-2"></i> Carregando empréstimos da planilha...</td></tr>';
 
-      setTimeout(() => {
-        const loans = getLocalLoans();
-        const ativos = loans.filter(l => l.status === 'Ativo');
-        exibirDevolucoes(ativos);
-      }, 200);
+      chamarApiSheets('listarEmprestimosAtivos', {}, 'GET')
+        .then(exibirDevolucoes)
+        .catch(err => mostrarAlerta(err.message, 'erro'));
     }
 
     function exibirDevolucoes(lista) {
@@ -1574,29 +1495,19 @@
         btnElement.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> <span>Devolvendo...</span>';
       }
 
-      setTimeout(() => {
-        const loans = getLocalLoans();
-        const stock = getLocalStock();
-        const lIdx = loans.findIndex(l => l.idEmprestimo === idEmprestimo);
-
-        if (lIdx !== -1) {
-          loans[lIdx].status = "Devolvido";
-          loans[lIdx].dataDevolucao = new Date().toLocaleString('pt-BR');
-
-          const codigoProd = loans[lIdx].codigo;
-          const qtd = Number(loans[lIdx].qtdEmprestada) || 0;
-
-          const sIdx = stock.findIndex(s => s.codigo === codigoProd);
-          if (sIdx !== -1) {
-            stock[sIdx].qtdEmprestada = Math.max(0, (Number(stock[sIdx].qtdEmprestada) || 0) - qtd);
-            saveLocalStock(stock);
-          }
-
-          saveLocalLoans(loans);
-          mostrarAlerta("Devolução registrada com sucesso!", "sucesso");
+      chamarApiSheets('registrarDevolucao', { idEmprestimo: idEmprestimo }, 'POST')
+        .then(res => {
+          mostrarAlerta(res.mensagem, 'sucesso');
           carregarDevolucoes();
-        }
-      }, 300);
+        })
+        .catch(err => {
+          if (btnElement) {
+            btnElement.disabled = false;
+            btnElement.classList.remove('opacity-70', 'cursor-not-allowed');
+            btnElement.innerHTML = '<i class="fa-solid fa-check"></i> <span>Devolver</span>';
+          }
+          mostrarAlerta(err.message, 'erro');
+        });
     }
 
     // Auxiliar de Alertas
