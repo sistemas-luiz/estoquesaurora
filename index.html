@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Controle de Estoque & Empréstimos</title>
+  <title>Controle de Estoque & Empréstimos - GitHub Edition</title>
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- FontAwesome Icons -->
@@ -12,7 +12,8 @@
   <script src="https://unpkg.com/html5-qrcode"></script>
   <style>
     body { font-family: 'Inter', system-ui, sans-serif; }
-    #reader video { border-radius: 0.75rem; object-fit: cover; }
+    #reader video { border-radius: 0.75rem; object-fit: cover; width: 100% !important; }
+    #reader { border: none !important; }
   </style>
 </head>
 <body class="bg-slate-100 text-slate-800 min-h-screen pb-10">
@@ -24,7 +25,13 @@
         <i class="fa-solid fa-boxes-packing text-2xl text-indigo-200"></i>
         <div>
           <h1 class="text-xl font-bold tracking-wide">Estoque & Empréstimos</h1>
-          <p class="text-[11px] text-indigo-200">Gestão com Conversão de Embalagens e Unidades Avulsas</p>
+          <div class="flex items-center gap-2 mt-0.5">
+            <span class="text-[10px] bg-indigo-800 text-indigo-200 px-2 py-0.5 rounded-full uppercase font-semibold tracking-wider">GitHub Edition</span>
+            <!-- Status da Conexão com Google Sheets -->
+            <span id="badgeStatusConexao" onclick="abrirModalConfiguracoes()" class="cursor-pointer text-[10px] bg-amber-500 text-white px-2.5 py-0.5 rounded-full font-bold flex items-center gap-1 hover:bg-amber-600 transition">
+              <i class="fa-solid fa-triangle-exclamation"></i> Conectar Planilha
+            </span>
+          </div>
         </div>
       </div>
       <!-- Tab Navigation -->
@@ -41,6 +48,9 @@
         <button onclick="switchTab('devolucoes')" id="tab-devolucoes" class="px-3.5 py-2 rounded-lg text-indigo-100 hover:bg-indigo-600/50 flex items-center gap-2 transition">
           <i class="fa-solid fa-rotate-left"></i> Devoluções
         </button>
+        <button onclick="abrirModalConfiguracoes()" class="px-2.5 py-2 rounded-lg text-indigo-100 hover:bg-indigo-600/50 flex items-center gap-1 transition" title="Configurações e Conexão da Planilha">
+          <i class="fa-solid fa-gear"></i>
+        </button>
       </nav>
     </div>
   </header>
@@ -56,30 +66,30 @@
 
     <!-- SEÇÃO 1: SCANNER DE CÓDIGO DE BARRAS / QR CODE -->
     <section id="sec-scanner" class="space-y-6">
-      <div class="grid md:grid-cols-2 gap-6">
+      <div class="grid md:grid-cols-2 gap-6 items-start">
         
         <!-- Câmera e Input Manual -->
         <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
-          <div class="flex items-center justify-between mb-4">
-            <h2 class="font-semibold text-slate-700 flex items-center gap-2">
+          <div class="flex items-center justify-between mb-3">
+            <h2 class="font-semibold text-slate-700 flex items-center gap-2 text-sm md:text-base">
               <i class="fa-solid fa-camera text-indigo-600"></i> Escanear Código
             </h2>
-            <button id="btnToggleCamera" onclick="toggleCamera()" class="text-xs bg-indigo-50 text-indigo-600 px-3 py-1.5 rounded-lg hover:bg-indigo-100 font-semibold transition">
-              <i class="fa-solid fa-power-off"></i> Ligar Câmera
+            <button id="btnToggleCamera" onclick="toggleCamera()" class="text-xs bg-indigo-50 text-indigo-600 px-3 py-1.5 rounded-lg hover:bg-indigo-100 font-semibold transition flex items-center gap-1">
+              <i class="fa-solid fa-camera"></i> Ligar Câmera
             </button>
           </div>
 
           <!-- Video Reader Container -->
-          <div id="reader-container" class="relative overflow-hidden rounded-xl bg-slate-900 min-h-[220px] flex items-center justify-center text-slate-400 text-sm">
+          <div id="reader-container" class="relative overflow-hidden rounded-xl bg-slate-50 border-2 border-dashed border-slate-200 py-4 min-h-[110px] flex items-center justify-center text-slate-500 text-xs transition-all duration-300">
             <div id="reader" class="w-full"></div>
-            <div id="cameraPlaceholder" class="text-center p-6">
-              <i class="fa-solid fa-barcode text-4xl text-slate-500 mb-2"></i>
-              <p>Clique em <strong>Ligar Câmera</strong> ou digite o código manualmente abaixo.</p>
+            <div id="cameraPlaceholder" class="text-center p-3">
+              <i class="fa-solid fa-barcode text-3xl text-slate-400 mb-1.5"></i>
+              <p class="text-xs text-slate-600">Clique em <strong>Ligar Câmera</strong> para ler barras ou QR Code.</p>
             </div>
           </div>
 
           <!-- Input Manual -->
-          <div class="mt-4 pt-4 border-t border-slate-100">
+          <div class="mt-4 pt-3 border-t border-slate-100">
             <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Código / Lote Manual</label>
             <div class="flex gap-2">
               <input type="text" id="manualCode" placeholder="Ex: 789123456789 ou LOTE-01" 
@@ -92,22 +102,22 @@
           </div>
         </div>
 
-        <!-- Detalhes do Produto Escaneado com Detalhamento de Pacote / Avulso -->
+        <!-- Detalhes do Produto Escaneado -->
         <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex flex-col justify-between min-h-[300px]">
           <div>
-            <h2 class="font-semibold text-slate-700 mb-4 flex items-center gap-2">
+            <h2 class="font-semibold text-slate-700 mb-4 flex items-center gap-2 text-sm md:text-base">
               <i class="fa-solid fa-box text-indigo-600"></i> Informações do Produto
             </h2>
 
             <div id="productCardEmpty" class="text-center py-12 text-slate-400">
-              <i class="fa-solid fa-qrcode text-5xl mb-3 text-slate-300"></i>
-              <p>Aguardando leitura de código ou busca...</p>
+              <i class="fa-solid fa-qrcode text-4xl mb-2 text-slate-300 block"></i>
+              <p class="text-xs">Aguardando leitura de código ou busca...</p>
             </div>
 
             <!-- TELA DE CARREGAMENTO -->
-            <div id="productCardLoading" class="hidden text-center py-12 text-slate-500 space-y-3">
-              <i class="fa-solid fa-circle-notch fa-spin text-4xl text-indigo-600"></i>
-              <p class="font-semibold text-sm text-slate-700">Consultando estoque no sistema...</p>
+            <div id="productCardLoading" class="hidden text-center py-10 text-slate-500 space-y-3">
+              <i class="fa-solid fa-circle-notch fa-spin text-3xl text-indigo-600"></i>
+              <p class="font-semibold text-sm text-slate-700">Consultando estoque na planilha...</p>
               <p class="text-xs text-slate-400">Por favor, aguarde alguns instantes.</p>
             </div>
 
@@ -167,7 +177,7 @@
             </div>
           </div>
 
-          <!-- Botões de Ação -->
+          <!-- Botões de Ação para Empréstimo / Doação / Utilização -->
           <div id="productCardActions" class="hidden mt-4 pt-4 border-t border-slate-100 space-y-2">
             <button id="btnAbrirEmpModal" onclick="abrirModalEmprestimo()" class="w-full bg-emerald-600 text-white py-2.5 rounded-xl font-semibold shadow hover:bg-emerald-700 transition flex justify-center items-center gap-2">
               <i class="fa-solid fa-hand-holding-hand"></i> Registrar Empréstimo
@@ -382,7 +392,7 @@
 
           </div>
 
-          <!-- BLOCO DE CONFIGURAÇÃO DE UNIDADES E EMBALAGENS -->
+          <!-- CONFIGURAÇÃO DE EMBALAGENS E UNIDADES AVULSAS -->
           <div class="bg-indigo-50/60 p-4 rounded-xl border border-indigo-100 space-y-3">
             <h3 class="text-xs font-bold text-indigo-900 uppercase flex items-center gap-1">
               <i class="fa-solid fa-cubes text-indigo-600"></i> Configuração de Embalagens e Unidades Avulsas
@@ -507,7 +517,7 @@
 
   </main>
 
-  <!-- MODAL DE REGISTRO DE EMPRÉSTIMO COM SELEÇÃO DE MODO DE SAÍDA -->
+  <!-- MODAL DE REGISTRO DE EMPRÉSTIMO -->
   <div id="modalEmprestimo" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
     <div class="bg-white rounded-2xl shadow-xl max-w-md w-full overflow-hidden">
       <div class="bg-indigo-600 px-5 py-4 text-white flex justify-between items-center">
@@ -585,7 +595,7 @@
     </div>
   </div>
 
-  <!-- MODAL DE REGISTRO DE DOAÇÃO / BAIXA COM SELEÇÃO DE MODO DE SAÍDA -->
+  <!-- MODAL DE REGISTRO DE DOAÇÃO / BAIXA -->
   <div id="modalDoacao" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
     <div class="bg-white rounded-2xl shadow-xl max-w-md w-full overflow-hidden">
       <div class="bg-purple-600 px-5 py-4 text-white flex justify-between items-center">
@@ -741,7 +751,7 @@
     </div>
   </div>
 
-  <!-- MODAL DE ALERTA: CÓDIGO DUPLICADO -->
+  <!-- MODAL DE ALERTA: CÓDIGO JÁ CADASTRADO -->
   <div id="modalCodigoExistente" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
     <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden border border-amber-200">
       <div class="bg-amber-500 px-5 py-4 text-white flex justify-between items-center">
@@ -773,6 +783,47 @@
     </div>
   </div>
 
+  <!-- MODAL DE CONFIGURAÇÕES E CONEXÃO COM A PLANILHA -->
+  <div id="modalConfiguracoes" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden">
+      <div class="bg-indigo-600 px-5 py-4 text-white flex justify-between items-center">
+        <h3 class="font-bold flex items-center gap-2">
+          <i class="fa-solid fa-link"></i> Conectar com o Google Sheets
+        </h3>
+        <button onclick="fecharModalConfiguracoes()" class="text-white hover:text-indigo-200 font-bold text-xl">&times;</button>
+      </div>
+      <div class="p-6 space-y-4 text-sm text-slate-700">
+        
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">URL da Web App Google Apps Script *</label>
+          <input type="url" id="cfg-apiUrl" placeholder="https://script.google.com/macros/s/.../exec" 
+            class="w-full px-3 py-2 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-indigo-500 font-mono">
+          <p class="text-[11px] text-slate-500 mt-1">Cole aqui a URL gerada na publicação da sua Web App do Google Apps Script.</p>
+        </div>
+
+        <div class="bg-indigo-50 p-4 rounded-xl border border-indigo-100 space-y-2 text-xs text-indigo-900">
+          <p class="font-bold flex items-center gap-1.5"><i class="fa-solid fa-circle-info text-indigo-600"></i> Como obter a URL da sua Planilha (30 segundos):</p>
+          <ol class="list-decimal pl-4 space-y-1 text-slate-600">
+            <li>Abra sua planilha do Google e vá em <strong>Extensões > Apps Script</strong>.</li>
+            <li>Coloque o código do <code>Código.gs</code> e clique em <strong>Implantar > Nova implantação</strong>.</li>
+            <li>Selecione o tipo <strong>App da Web</strong>.</li>
+            <li>Defina <strong>"Quem pode acessar"</strong> como <code>Qualquer pessoa</code>.</li>
+            <li>Clique em <strong>Implantar</strong>, autorize o acesso e copie o <strong>URL do App da Web</strong>.</li>
+          </ol>
+        </div>
+
+        <div class="pt-3 border-t border-slate-100 flex justify-between gap-2">
+          <button onclick="testarConexaoApi()" type="button" class="text-xs bg-slate-100 text-slate-700 px-3 py-2 rounded-xl hover:bg-slate-200 font-semibold transition flex items-center gap-1">
+            <i class="fa-solid fa-plug"></i> Testar Conexão
+          </button>
+          <button onclick="salvarConfiguracoes()" type="button" class="text-xs bg-indigo-600 text-white px-5 py-2 rounded-xl hover:bg-indigo-700 font-bold shadow transition flex items-center gap-1">
+            <i class="fa-solid fa-save"></i> Salvar e Conectar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- MODAL DE VISUALIZAÇÃO DA FOTO AMPLIADA -->
   <div id="modalVisualizarFoto" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50" onclick="if(event.target === this) fecharModalFoto()">
     <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full overflow-hidden flex flex-col max-h-[90vh]">
@@ -797,7 +848,7 @@
     </div>
   </div>
 
-  <!-- JAVASCRIPT APP LOGIC -->
+  <!-- JAVASCRIPT APP LOGIC (GITHUB TO GOOGLE SHEETS API ENGINE) -->
   <script>
     let html5QrcodeScanner = null;
     let cameraAtiva = false;
@@ -806,12 +857,73 @@
     let todosProdutosInventario = [];
     let fotoBase64OuUrlAtual = "";
 
+    const DB_API_KEY = 'github_stock_api_url_v1';
+
     window.onload = function() {
       document.getElementById('cad-dataEntrada').value = new Date().toISOString().split('T')[0];
       atualizarLabelCalculadoraEstoque();
+
+      // Carregar URL da API salva no localStorage
+      const savedApiUrl = localStorage.getItem(DB_API_KEY) || '';
+      document.getElementById('cfg-apiUrl').value = savedApiUrl;
+
+      atualizarBadgeStatusConexao();
+
+      if (!savedApiUrl) {
+        setTimeout(() => {
+          mostrarAlerta("Configure a URL do Google Apps Script para sincronizar com sua planilha!", "alerta");
+        }, 1000);
+      }
     };
 
-    // Alternar Abas
+    function getApiUrl() {
+      return localStorage.getItem(DB_API_KEY) || '';
+    }
+
+    function atualizarBadgeStatusConexao() {
+      const badge = document.getElementById('badgeStatusConexao');
+      const url = getApiUrl();
+
+      if (url && url.startsWith('https://script.google.com/')) {
+        badge.className = "cursor-pointer text-[10px] bg-emerald-600 text-white px-2.5 py-0.5 rounded-full font-bold flex items-center gap-1 hover:bg-emerald-700 transition";
+        badge.innerHTML = '<i class="fa-solid fa-circle-check"></i> Planilha Conectada';
+      } else {
+        badge.className = "cursor-pointer text-[10px] bg-amber-500 text-white px-2.5 py-0.5 rounded-full font-bold flex items-center gap-1 hover:bg-amber-600 transition";
+        badge.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> Conectar Planilha';
+      }
+    }
+
+    /**
+     * Função universal de comunicação HTTP com o Google Apps Script
+     */
+    async function chamarApiSheets(action, payload = {}, method = 'GET') {
+      const apiUrl = getApiUrl();
+      if (!apiUrl) {
+        abrirModalConfiguracoes();
+        throw new Error("URL da API do Google Apps Script não configurada. Insira o link da sua Web App!");
+      }
+
+      try {
+        if (method === 'GET') {
+          const params = new URLSearchParams({ action, ...payload });
+          const response = await fetch(`${apiUrl}?${params.toString()}`);
+          if (!response.ok) throw new Error(`HTTP ${response.status}`);
+          return await response.json();
+        } else {
+          const response = await fetch(apiUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify({ action, ...payload })
+          });
+          if (!response.ok) throw new Error(`HTTP ${response.status}`);
+          return await response.json();
+        }
+      } catch (err) {
+        console.error("Erro na comunicação com a planilha:", err);
+        throw new Error("Erro de conexão com o Google Sheets: " + err.message);
+      }
+    }
+
     function switchTab(tab) {
       ['scanner', 'inventario', 'cadastrar', 'devolucoes'].forEach(t => {
         document.getElementById('sec-' + t).classList.add('hidden');
@@ -835,9 +947,11 @@
     }
 
     function iniciarCamera() {
+      const container = document.getElementById('reader-container');
+      container.className = "relative overflow-hidden rounded-xl bg-slate-900 min-h-[250px] flex items-center justify-center text-slate-400 text-sm transition-all duration-300";
       document.getElementById('cameraPlaceholder').classList.add('hidden');
-      html5QrcodeScanner = new Html5Qrcode("reader");
 
+      html5QrcodeScanner = new Html5Qrcode("reader");
       const config = { fps: 10, qrbox: { width: 250, height: 180 } };
 
       html5QrcodeScanner.start(
@@ -847,24 +961,45 @@
         onScanError
       ).then(() => {
         cameraAtiva = true;
-        document.getElementById('btnToggleCamera').innerHTML = '<i class="fa-solid fa-stop text-red-500"></i> Desligar Câmera';
+        const btn = document.getElementById('btnToggleCamera');
+        btn.className = "text-xs bg-red-50 text-red-600 px-3 py-1.5 rounded-lg hover:bg-red-100 font-semibold transition flex items-center gap-1";
+        btn.innerHTML = '<i class="fa-solid fa-stop"></i> Desligar Câmera';
       }).catch(err => {
         mostrarAlerta('Erro ao acessar câmera: ' + err, 'erro');
-        document.getElementById('cameraPlaceholder').classList.remove('hidden');
+        pararCameraUI();
       });
     }
 
     function pararCamera() {
       if (html5QrcodeScanner && cameraAtiva) {
         html5QrcodeScanner.stop().then(() => {
-          cameraAtiva = false;
-          document.getElementById('btnToggleCamera').innerHTML = '<i class="fa-solid fa-power-off"></i> Ligar Câmera';
-          document.getElementById('cameraPlaceholder').classList.remove('hidden');
+          pararCameraUI();
+        }).catch(err => {
+          console.warn("Erro ao parar câmera:", err);
+          pararCameraUI();
         });
+      } else {
+        pararCameraUI();
       }
     }
 
+    function pararCameraUI() {
+      cameraAtiva = false;
+      const readerElem = document.getElementById('reader');
+      if (readerElem) readerElem.innerHTML = '';
+
+      const container = document.getElementById('reader-container');
+      container.className = "relative overflow-hidden rounded-xl bg-slate-50 border-2 border-dashed border-slate-200 py-4 min-h-[110px] flex items-center justify-center text-slate-500 text-xs transition-all duration-300";
+
+      document.getElementById('cameraPlaceholder').classList.remove('hidden');
+
+      const btn = document.getElementById('btnToggleCamera');
+      btn.className = "text-xs bg-indigo-50 text-indigo-600 px-3 py-1.5 rounded-lg hover:bg-indigo-100 font-semibold transition flex items-center gap-1";
+      btn.innerHTML = '<i class="fa-solid fa-camera"></i> Ligar Câmera';
+    }
+
     function onScanSuccess(decodedText) {
+      pararCamera();
       mostrarAlerta(`Código detectado: ${decodedText}`, 'sucesso');
       document.getElementById('manualCode').value = decodedText;
       buscarProduto(decodedText);
@@ -914,16 +1049,15 @@
     function buscarProduto(codigo) {
       setSearchLoading(true);
 
-      google.script.run
-        .withSuccessHandler(res => {
+      chamarApiSheets('buscarProduto', { codigo: codigo }, 'GET')
+        .then(res => {
           setSearchLoading(false);
           exibirProduto(res);
         })
-        .withFailureHandler(err => {
+        .catch(err => {
           setSearchLoading(false);
           mostrarAlerta(err.message, 'erro');
-        })
-        .buscarProdutoPorCodigo(codigo);
+        });
     }
 
     function exibirProduto(produto) {
@@ -999,7 +1133,6 @@
       }
     }
 
-    // CALCULADORA DO FORMULÁRIO DE CADASTRO
     function atualizarLabelCalculadoraEstoque() {
       const emb = document.getElementById('cad-unidade').value;
       const ind = document.getElementById('cad-unidadeIndividual').value || 'Unid';
@@ -1037,7 +1170,6 @@
       document.getElementById('resumoCalculoForm').innerHTML = msg;
     }
 
-    // TRATAMENTO DE IMAGEM
     function processarArquivoFoto(input) {
       if (!input.files || !input.files[0]) return;
       const file = input.files[0];
@@ -1109,23 +1241,21 @@
       btnRemover.classList.add('hidden');
     }
 
-    // INVENTÁRIO
     function carregarInventario() {
       const tb = document.getElementById('tabelaInventario');
-      tb.innerHTML = '<tr><td colspan="9" class="text-center py-10 text-slate-400"><i class="fa-solid fa-circle-notch fa-spin text-2xl text-indigo-600 mb-2 block"></i> Carregando lista de produtos...</td></tr>';
+      tb.innerHTML = '<tr><td colspan="9" class="text-center py-10 text-slate-400"><i class="fa-solid fa-circle-notch fa-spin text-2xl text-indigo-600 mb-2 block"></i> Carregando inventário da planilha...</td></tr>';
 
-      google.script.run
-        .withSuccessHandler(lista => {
+      chamarApiSheets('listarProdutos', {}, 'GET')
+        .then(lista => {
           todosProdutosInventario = lista || [];
           preencherFiltroCategorias(todosProdutosInventario);
           atualizarKPIsInventario(todosProdutosInventario);
           filtrarEExibirInventario();
         })
-        .withFailureHandler(err => {
+        .catch(err => {
           mostrarAlerta(err.message, 'erro');
-          tb.innerHTML = '<tr><td colspan="9" class="text-center py-8 text-red-500">Erro ao carregar inventário!</td></tr>';
-        })
-        .listarTodosProdutos();
+          tb.innerHTML = '<tr><td colspan="9" class="text-center py-8 text-red-500">Erro ao carregar inventário! Verifique a conexão com a planilha.</td></tr>';
+        });
     }
 
     function preencherFiltroCategorias(produtos) {
@@ -1254,6 +1384,8 @@
       if (p) {
         produtoAtual = p;
         carregarParaEdicao();
+      } else {
+        buscarProduto(codigo);
       }
     }
 
@@ -1305,7 +1437,7 @@
 
       const modoSaida = document.querySelector('input[name="emp-modoSaida"]:checked').value;
 
-      const dados = {
+      const dadosEmprestimo = {
         codigo: produtoAtual.codigo,
         nomeMorador: document.getElementById('emp-nomeMorador').value.trim(),
         casaUnidade: document.getElementById('emp-casaUnidade').value.trim(),
@@ -1314,20 +1446,19 @@
         observacoes: document.getElementById('emp-observacoes').value.trim()
       };
 
-      google.script.run
-        .withSuccessHandler(res => {
+      chamarApiSheets('registrarEmprestimo', { dadosEmprestimo: dadosEmprestimo }, 'POST')
+        .then(res => {
           btn.disabled = false;
           btn.innerHTML = '<i class="fa-solid fa-check"></i> Confirmar Empréstimo';
           fecharModalEmprestimo();
           mostrarAlerta(res.mensagem, 'sucesso');
           buscarProduto(produtoAtual.codigo);
         })
-        .withFailureHandler(err => {
+        .catch(err => {
           btn.disabled = false;
           btn.innerHTML = '<i class="fa-solid fa-check"></i> Confirmar Empréstimo';
           mostrarAlerta(err.message, 'erro');
-        })
-        .registrarEmprestimo(dados);
+        });
     }
 
     // LÓGICA DO MODAL DE DOAÇÃO
@@ -1378,7 +1509,7 @@
 
       const modoSaida = document.querySelector('input[name="doa-modoSaida"]:checked').value;
 
-      const dados = {
+      const dadosDoacao = {
         codigo: produtoAtual.codigo,
         nomeMorador: document.getElementById('doa-nomeMorador').value.trim(),
         casaUnidade: document.getElementById('doa-casaUnidade').value.trim(),
@@ -1387,20 +1518,19 @@
         observacoes: document.getElementById('doa-observacoes').value.trim()
       };
 
-      google.script.run
-        .withSuccessHandler(res => {
+      chamarApiSheets('registrarDoacao', { dadosDoacao: dadosDoacao }, 'POST')
+        .then(res => {
           btn.disabled = false;
           btn.innerHTML = '<i class="fa-solid fa-gift"></i> Confirmar Doação / Baixa';
           fecharModalDoacao();
           mostrarAlerta(res.mensagem, 'sucesso');
           buscarProduto(produtoAtual.codigo);
         })
-        .withFailureHandler(err => {
+        .catch(err => {
           btn.disabled = false;
           btn.innerHTML = '<i class="fa-solid fa-gift"></i> Confirmar Doação / Baixa';
           mostrarAlerta(err.message, 'erro');
-        })
-        .registrarDoacao(dados);
+        });
     }
 
     // LÓGICA DO MODAL DE UTILIZAÇÃO / CONSUMO DE MATERIAL
@@ -1451,7 +1581,7 @@
 
       const modoSaida = document.querySelector('input[name="util-modoSaida"]:checked').value;
 
-      const dados = {
+      const dadosUtilizacao = {
         codigo: produtoAtual.codigo,
         responsavel: document.getElementById('util-responsavel').value.trim(),
         finalidade: document.getElementById('util-finalidade').value.trim(),
@@ -1460,29 +1590,27 @@
         observacoes: document.getElementById('util-observacoes').value.trim()
       };
 
-      google.script.run
-        .withSuccessHandler(res => {
+      chamarApiSheets('registrarUtilizacao', { dadosUtilizacao: dadosUtilizacao }, 'POST')
+        .then(res => {
           btn.disabled = false;
           btn.innerHTML = '<i class="fa-solid fa-check"></i> Registrar Utilização';
           fecharModalUtilizacao();
           mostrarAlerta(res.mensagem, 'sucesso');
           buscarProduto(produtoAtual.codigo);
         })
-        .withFailureHandler(err => {
+        .catch(err => {
           btn.disabled = false;
           btn.innerHTML = '<i class="fa-solid fa-check"></i> Registrar Utilização';
           mostrarAlerta(err.message, 'erro');
-        })
-        .registrarUtilizacao(dados);
+        });
     }
 
-    // SALVAR / CADASTRAR PRODUTO
     function salvarProduto(e, forcarSobrescrever = false) {
       if (e) e.preventDefault();
 
       const btn = document.getElementById('btnSalvarProd');
       btn.disabled = true;
-      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Salvando...';
+      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Salvando na planilha...';
 
       const produtoData = {
         codigo: document.getElementById('cad-codigo').value.trim(),
@@ -1501,8 +1629,8 @@
         permitirSobrescrever: modoEdicaoAtivo || forcarSobrescrever
       };
 
-      google.script.run
-        .withSuccessHandler(res => {
+      chamarApiSheets('cadastrarOuAtualizarProduto', { produtoData: produtoData }, 'POST')
+        .then(res => {
           btn.disabled = false;
           btn.innerHTML = '<i class="fa-solid fa-save"></i> Salvar Produto';
 
@@ -1517,12 +1645,11 @@
             buscarProduto(produtoData.codigo);
           }
         })
-        .withFailureHandler(err => {
+        .catch(err => {
           btn.disabled = false;
           btn.innerHTML = '<i class="fa-solid fa-save"></i> Salvar Produto';
           mostrarAlerta(err.message, 'erro');
-        })
-        .cadastrarOuAtualizarProduto(produtoData);
+        });
     }
 
     function exibirModalCodigoExistente(codigo, produtoNome) {
@@ -1584,7 +1711,7 @@
       document.getElementById('cad-codigo').value = 'COD-' + Math.floor(100000 + Math.random() * 900000);
     }
 
-    // LIGHTBOX FOTO
+    // Modal de Visualização Ampliada da Foto
     function visualizarFotoAtual() {
       if (produtoAtual && produtoAtual.foto && produtoAtual.foto.trim() !== '') {
         abrirModalFoto(produtoAtual.foto, produtoAtual.produto, produtoAtual.codigo);
@@ -1604,15 +1731,47 @@
       document.getElementById('modalVisualizarFoto').classList.add('hidden');
     }
 
-    // LISTA DE DEVOLUÇÕES
+    // Modal de Configurações da API
+    function abrirModalConfiguracoes() {
+      document.getElementById('modalConfiguracoes').classList.remove('hidden');
+    }
+
+    function fecharModalConfiguracoes() {
+      document.getElementById('modalConfiguracoes').classList.add('hidden');
+    }
+
+    function salvarConfiguracoes() {
+      const url = document.getElementById('cfg-apiUrl').value.trim();
+      localStorage.setItem(DB_API_KEY, url);
+      atualizarBadgeStatusConexao();
+      mostrarAlerta("URL da planilha configurada com sucesso!", "sucesso");
+      fecharModalConfiguracoes();
+    }
+
+    function testarConexaoApi() {
+      const url = document.getElementById('cfg-apiUrl').value.trim();
+      if (!url) {
+        mostrarAlerta("Digite a URL do Web App antes de testar.", "alerta");
+        return;
+      }
+
+      fetch(`${url}?action=listarProdutos`)
+        .then(r => r.json())
+        .then(res => {
+          mostrarAlerta("✅ Conexão estabelecida com sucesso com a planilha!", "sucesso");
+        })
+        .catch(err => {
+          mostrarAlerta("❌ Erro ao conectar com o Web App. Verifique a permissão ('Qualquer pessoa').", "erro");
+        });
+    }
+
     function carregarDevolucoes() {
       const tb = document.getElementById('tabelaDevolucoes');
-      tb.innerHTML = '<tr><td colspan="6" class="text-center py-6 text-slate-400"><i class="fa-solid fa-spinner fa-spin me-2"></i> Carregando...</td></tr>';
+      tb.innerHTML = '<tr><td colspan="6" class="text-center py-6 text-slate-400"><i class="fa-solid fa-spinner fa-spin me-2"></i> Carregando empréstimos da planilha...</td></tr>';
 
-      google.script.run
-        .withSuccessHandler(exibirDevolucoes)
-        .withFailureHandler(err => mostrarAlerta(err.message, 'erro'))
-        .listarEmprestimosAtivos(null);
+      chamarApiSheets('listarEmprestimosAtivos', {}, 'GET')
+        .then(exibirDevolucoes)
+        .catch(err => mostrarAlerta(err.message, 'erro'));
     }
 
     function exibirDevolucoes(lista) {
@@ -1656,23 +1815,21 @@
         btnElement.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> <span>Devolvendo...</span>';
       }
 
-      google.script.run
-        .withSuccessHandler(res => {
+      chamarApiSheets('registrarDevolucao', { idEmprestimo: idEmprestimo }, 'POST')
+        .then(res => {
           mostrarAlerta(res.mensagem, 'sucesso');
           carregarDevolucoes();
         })
-        .withFailureHandler(err => {
+        .catch(err => {
           if (btnElement) {
             btnElement.disabled = false;
             btnElement.classList.remove('opacity-70', 'cursor-not-allowed');
             btnElement.innerHTML = '<i class="fa-solid fa-check"></i> <span>Devolver</span>';
           }
           mostrarAlerta(err.message, 'erro');
-        })
-        .registrarDevolucao(idEmprestimo);
+        });
     }
 
-    // AUXILIAR DE ALERTAS
     function mostrarAlerta(msg, tipo = 'sucesso') {
       const box = document.getElementById('alertBox');
       const text = document.getElementById('alertMessage');
